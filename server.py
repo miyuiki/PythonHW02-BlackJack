@@ -11,8 +11,10 @@ server.listen(5)
 while True:
     client,addr = server.accept()
 
-    print("Got a connection fromm %s" %str(addr))
-    current = time.ctime(time.time()) + "\r\n"
-    client.send(current.encode('ascii'))
-
-    client.close()
+    print("Got a connection by %s" %str(addr))
+    data = client.recv(1024)
+    if not data:
+    	break
+    client.sendall(data)
+    print("received message %s" %str(data))
+client.close()
