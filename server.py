@@ -36,7 +36,7 @@ if __name__ == "__main__":
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind(("0.0.0.0", PORT))
     server_socket.listen(5)
-    
+
     # Add server socket to the list of readable connections
     CONNECTION_LIST.append(server_socket)
  
