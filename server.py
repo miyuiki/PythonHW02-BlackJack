@@ -19,7 +19,14 @@ def broadcast_data (sock, message):
             socket.send(message)
         except :
             pass
- 
+def broadcast_player (sock, message):
+    for socket in CONNECTION_LIST:
+        if socket == sock:
+            try:
+                socket.send(message)
+            except :
+                pass
+
 if __name__ == "__main__":
     houseman = []
     player = []
@@ -54,9 +61,13 @@ if __name__ == "__main__":
                 sockfd, addr = server_socket.accept()
                 CONNECTION_LIST.append(sockfd)
                 print "Player (%s, %s) connected" % addr
+
+                player.append(get_card(card))
+                player.append(get_card(card))
  
                 broadcast_data(sockfd, "[%s:%s] join the game\n" % addr)
                 broadcast_data(sock, "house man: %s\n" %str(houseman[0]))
+                broadcast_player(sock, "your card: %s , %s\n" %(str(player[len(player)-2]),str(player[len(player)-1])))
  
             #Some incoming message from a client
             else:
