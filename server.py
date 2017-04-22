@@ -3,6 +3,9 @@ import select
 import random
 
 card = []
+houseman = []
+player = [[], [], [], [], []]  # 5 player's card
+
 for i in xrange(1, 5):
     for j in xrange(1, 14):
         card.append((i, j))
@@ -34,23 +37,67 @@ def broadcast_player(sock, message):
                 pass
 
 
-def ask(data, player, toplayer):
-    """point = 0
-    for x in xrange(0,player[len(CONNECTION_LIST)-2]):
-        point += player[len(CONNECTION_LIST)-2][x][1]"""
-    """if data == "y":
-        player[len(CONNECTION_LIST)-2].append(get_card(card))
-        broadcast_player(toplayer,str(player[len(CONNECTION_LIST)-2]) + "\nmore card?(y/n)\n")
-    elif str(data) == "n":
-        broadcast_player(toplayer,str(player[len(CONNECTION_LIST)-2]) + "\npoint:\n")"""
-    player.append(get_card(card))
-    broadcast_player(toplayer, str(player))
+def calculate(card):
+    kc = 0
+    qc = 0
+    jc = 0
+    ac = 0
+    point = 0
+
+    for x in xrange(0, len(card)):
+        point += card[x][1]
+
+        if card[x][1] == 13:
+            kc += 1
+        elif card[x][1] == 12:
+            qc += 1
+        elif card[x][1] == 11:
+            jc += 1
+        elif card[x][1] == 1:
+            ac += 1
+    point = point - 3 * kc - 2 * qc - jc + 9 * ac
+    if ac > 0 and point > 21:
+        cnt = ac
+        while point > 21 and cnt != 0:
+            point = point - 9
+            cnt = cnt - 1
+
+    return point
+
+
+def ask(data, player, toplayer, clist):
+    if data == 'y':
+        player.append(get_card(card))
+
+        if calculate(player) > 21:
+            broadcast_player(toplayer, str(player) + "\npoint: " + str(calculate(player)) + "\nYou Lose !! hahaha\n")
+            del player[:]
+            toplayer.close()
+            clist.remove(toplayer)
+
+        elif calculate(player) == 21:
+            broadcast_player(toplayer, str(player) + "\npoint: " + str(calculate(player)) + "\nYou Win !!\n")
+            del player[:]
+            toplayer.close()
+            clist.remove(toplayer)
+
+        else:
+            broadcast_player(toplayer, str(player) + "\npoint: " + str(calculate(player)) + "\nmore card? (y/n)\n")
+
+    elif data == 'n':
+        if len(clist) > 2:
+            broadcast_player(toplayer, str(player) + "\nTotal point: " + str(calculate(player)) + "\nPlease wait for other players.\n")
+        else:
+            broadcast_player(toplayer, str(player) + "\nTotal point: " + str(calculate(player)))
+        del player[:]
+
+    else:
+        broadcast_player(toplayer, "Check your answer")
 
 
 if __name__ == "__main__":
-    player_count = -1
-    houseman = []
-    player = [[], [], [], [], []]  # 5 player's card
+
+    index = 0
 
     houseman.append(get_card(card))
     houseman.append(get_card(card))
@@ -82,23 +129,23 @@ if __name__ == "__main__":
                 sockfd, addr = server_socket.accept()
                 CONNECTION_LIST.append(sockfd)
                 print "Player (%s, %s) connected" % addr
-                if sockfd:
-                    player_count += 1
+                index = CONNECTION_LIST.index(sockfd)
 
-                player[player_count].append(get_card(card))
-                player[player_count].append(get_card(card))
+                player[index].append(get_card(card))
+                player[index].append(get_card(card))
 
                 broadcast_data(sockfd, "[%s:%s] join the game\n" % addr)
                 broadcast_player(sockfd, "house man: %s\n" % str(houseman[0]))
-                broadcast_player(sockfd, "your card: %s\nmore card?(y/n)\n" % (str(player[player_count])))
+                broadcast_player(sockfd, "your card: %s\nmore card?(y/n)\n" % (str(player[index])))
 
-            # Some incoming message from a client
+            # Some incoming message from a clientm
             else:
+                index = CONNECTION_LIST.index(sock)
                 # Data recieved from client, process it
                 try:
                     data = sock.recv(RECV_BUFFER)
                     if data:
-                        ask(data, player[player_count], sock)
+                        ask(str(data), player[index], sock, CONNECTION_LIST)
 
                 except:
                     broadcast_data(sock, "PLayer (%s, %s) is offline" % addr)
