@@ -30,7 +30,7 @@ if __name__ == "__main__":
         print 'Unable to connect'
         sys.exit()
  	
-    print 'Connected to remote host. Start sending messages'
+    print 'Connected to remote host.'
     prompt()
  
     while 1:
@@ -54,5 +54,5 @@ if __name__ == "__main__":
             #user entered a message
             else :
                 msg = sys.stdin.readline()
-                s.send(msg)
+                s.send(msg[0])
                 prompt()
