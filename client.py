@@ -6,7 +6,6 @@ import string
 ##player = input("your name : ")
 
 def prompt() :
-    sys.stdout.write("<PLAYER> ")
     sys.stdout.flush()
 
 #main function

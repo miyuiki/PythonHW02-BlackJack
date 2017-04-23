@@ -213,5 +213,9 @@ if __name__ == "__main__":
                                         broadcast_data(sock,
                                                        str(houseman) + "Houseman's point: " + str(calculate(houseman)) +
                                                        "\nPLayer %s lose\n" % str(x+1))
+                    sock.close()
+                    CONNECTION_LIST.remove(sock)
+                    sys.exit()
                 except:
                     pass
+
