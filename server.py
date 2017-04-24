@@ -62,11 +62,11 @@ def calculate(card):
             jc += 1
         elif card[x][1] == 1:
             ac += 1
-    point = point - 3 * kc - 2 * qc - jc + 9 * ac
+    point = point - 3 * kc - 2 * qc - jc + 10 * ac
     if ac > 0 and point > 21:
         cnt = ac
         while point > 21 and cnt != 0:
-            point = point - 9
+            point = point - 10
             cnt = cnt - 1
 
     return point
